@@ -26,4 +26,15 @@ This project is a fully responsive webpage showcasing the profile of That Suon. 
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/yourusername/your-repository.git
+   
+### Explanation:
+- **Overview**: Briefly describes the project and its purpose.
+- **Technologies Used**: Lists the technologies (HTML, CSS, etc.) used in the project.
+- **Setup Instructions**: Guides users on how to get the project running locally.
+- **Features**: Highlights key features of the profile page.
+- **Responsive Design**: Explains how the design adapts to different screen sizes.
+- **Credits**: Mentions who developed the page and any relevant background information.
+
+This structure gives an organized overview of your project and helps others understand how to use and run it.
+
 
