@@ -25,7 +25,7 @@ This project is a fully responsive webpage showcasing the profile of That Suon. 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/your-repository.git
+   git clone [https://github.com/yourusername/your-repository.git](https://github.com/tsuon/tsuon.github.io.git)
    
 ### Explanation:
 - **Overview**: Briefly describes the project and its purpose.
