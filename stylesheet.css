@@ -93,11 +93,11 @@ span.highlight {
 
 /* Add a hover effect */
 .logo-container img:hover {
-  transform: scale(1.1); /* Slightly enlarges the logo on hover */
+  transform: scale(1.5); /* Slightly enlarges the logo on hover */
 }
 
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
   .logo-container img {
-    width: 100px; /* Resize logos for mobile */
+    width: 70px; /* Resize logos for mobile */
   }
