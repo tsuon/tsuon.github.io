@@ -7,7 +7,7 @@ const app = express();
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static('index.html')); // Serve static files like your index.html
+app.use(express.static('/index.html')); // Serve static files like your index.html
 
 // MongoDB Connection
 const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/chatgpt_evaluation';
