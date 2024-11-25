@@ -30,14 +30,18 @@ app.use(express.static('public'));
 app.get('/api/question/random', async (req, res) => {
   try {
     const count = await Question.countDocuments();
+    if (count === 0) {
+      return res.json({ success: false, error: 'No questions in the database.' });
+    }
     const random = Math.floor(Math.random() * count);
     const question = await Question.findOne().skip(random);
     res.json({ success: true, question });
   } catch (error) {
-    console.error(error);
-    res.json({ success: false, error: 'Error fetching random question.' });
+    console.error('Error fetching question:', error.message);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
+
 
 
 app.get('/api/question/next', async (req, res) => {
