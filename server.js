@@ -27,6 +27,8 @@ app.get('/api/question/random', async (req, res) => {
     res.json({ success: false, error: 'Error fetching random question.' });
   }
 });
+app.use(express.static('public'));
+
 
 app.get('/api/question/next', async (req, res) => {
   // Logic for sequential question retrieval
