@@ -27,7 +27,7 @@ const Question = mongoose.model('Question', questionSchema);
 app.use(express.static('public'));
 
 // API endpoints
-app.get('/api/question/random', async (req, res) => {
+/*app.get('/api/question/random', async (req, res) => {
   try {
       const collectionName = req.query.collection; // Get the collection name from query parameter
 
@@ -48,7 +48,42 @@ app.get('/api/question/random', async (req, res) => {
       res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
+*/
 
+app.get('/api/question/random', async (req, res) => {
+  try {
+      const collectionName = req.query.collection; // Get the collection name from the query parameter
+
+      // Validate the collection name
+      if (!collectionName || !['computer_security', 'prehistory', 'social_science'].includes(collectionName)) {
+          return res.json({ success: false, error: 'Invalid or missing collection name.' });
+      }
+
+      // Dynamically select the correct collection based on the query parameter
+      const Question = mongoose.model(collectionName, questionSchema, collectionName);
+
+      // Check how many documents are in the specified collection
+      const count = await Question.countDocuments();  // Correct way to get count using Mongoose
+      console.log(`Documents in ${collectionName}: ${count}`); // Log document count
+
+      // If no documents exist in the collection, return an error
+      if (count === 0) {
+          return res.json({ success: false, error: `No questions in the ${collectionName} collection.` });
+      }
+
+      // Fetch a random question
+      const random = Math.floor(Math.random() * count);
+      const question = await Question.findOne().skip(random);
+
+      // Log the fetched question
+      console.log(`Fetched question from ${collectionName}:`, question);
+
+      res.json({ success: true, question });
+  } catch (error) {
+      console.error('Error fetching question:', error);
+      res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
 
 
 
@@ -56,4 +91,3 @@ app.get('/api/question/random', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
