@@ -56,3 +56,4 @@ const seedData = async () => {
 
 // Call seedData() to insert the documents
 seedData();
+
