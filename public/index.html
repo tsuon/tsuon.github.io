@@ -100,6 +100,8 @@
         
             <h3>Results</h3>
             <p>Visualizations coming soon! This section will display graphs and charts on ChatGPT's performance.</p>
+
+
             <section id="question-fetch">
               <button id="fetchQuestion">Fetch Question</button>
               <div id="questionContainer"></div>
@@ -123,6 +125,29 @@
                 }
               });
             </script>
+
+<section id="question-fetch">
+  <button id="fetchQuestion">Fetch prehistory Question</button>
+  <div id="questionContainer"></div>
+</section>
+
+<script>
+  document.getElementById('fetchQuestion').addEventListener('click', async () => {
+    try {
+      const response = await fetch('/api/question/random?collection=prehistory'); // Specify collection here
+      const data = await response.json();
+
+      if (data.success) {
+        document.getElementById('questionContainer').innerText = data.question.question;
+      } else {
+        document.getElementById('questionContainer').innerText = data.error;
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      document.getElementById('questionContainer').innerText = 'Unable to fetch question.';
+    }
+  });
+</script>
 
         </section>
       </td>

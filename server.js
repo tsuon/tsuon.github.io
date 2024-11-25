@@ -29,32 +29,31 @@ app.use(express.static('public'));
 // API endpoints
 app.get('/api/question/random', async (req, res) => {
   try {
-    const count = await Question.countDocuments();
-    if (count === 0) {
-      return res.json({ success: false, error: 'No questions in the database.' });
-    }
-    const random = Math.floor(Math.random() * count);
-    const question = await Question.findOne().skip(random);
-    res.json({ success: true, question });
+      const collectionName = req.query.collection; // Get the collection name from query parameter
+
+      if (!collectionName || !['computer_security', 'prehistory', 'social_science'].includes(collectionName)) {
+          return res.json({ success: false, error: 'Invalid or missing collection name.' });
+      }
+
+      const Question = mongoose.model(collectionName, questionSchema, collectionName); // Dynamically select the collection
+      const count = await Question.countDocuments();
+      if (count === 0) return res.json({ success: false, error: 'No questions in the database.' });
+
+      const random = Math.floor(Math.random() * count);
+      const question = await Question.findOne().skip(random);
+
+      res.json({ success: true, question });
   } catch (error) {
-    console.error('Error fetching question:', error.message);
-    res.status(500).json({ success: false, error: 'Internal Server Error' });
+      console.error('Error fetching question:', error);
+      res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
 
 
 
-app.get('/api/question/next', async (req, res) => {
-  // Logic for sequential question retrieval
-  try {
-    const questions = await Question.find();
-    res.json({ success: true, question: questions[0] }); // Adjust logic as needed
-  } catch (error) {
-    console.error(error);
-    res.json({ success: false, error: 'Error fetching next question.' });
-  }
-});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
