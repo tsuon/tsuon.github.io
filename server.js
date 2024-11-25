@@ -9,11 +9,24 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
+const mongoose = require('mongoose');
+
+
+
 // Question Schema
 const questionSchema = new mongoose.Schema({
-  text: String,
+  question: { type: String, required: true }, // Text of the question
+  expectedAnswer: { type: String }, // Expected answer
+  chatGPTResponse: { type: String } // ChatGPT's response (can be null)
 });
+
+// Create the model
 const Question = mongoose.model('Question', questionSchema);
+
+
+
+// Serve static files from the 'public' directory
+app.use(express.static('public'));
 
 // API endpoints
 app.get('/api/question/random', async (req, res) => {
@@ -27,7 +40,6 @@ app.get('/api/question/random', async (req, res) => {
     res.json({ success: false, error: 'Error fetching random question.' });
   }
 });
-app.use(express.static('public'));
 
 
 app.get('/api/question/next', async (req, res) => {
