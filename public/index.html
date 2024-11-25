@@ -100,36 +100,26 @@
         
             <h3>Results</h3>
             <p>Visualizations coming soon! This section will display graphs and charts on ChatGPT's performance.</p>
-            <section id="chatgpt-efficiency">
-              <h1>ChatGPT Efficiency Evaluation</h1>
-              <button id="randomButton">Get Random Question</button>
-              <button id="nextButton">Get Next Question</button>
-              <div id="response-container"></div>
+            <section id="question-fetch">
+              <button id="fetchQuestion">Fetch Question</button>
+              <div id="questionContainer"></div>
             </section>
-        
+            
             <script>
-              // Event listeners
-              document.getElementById('randomButton').addEventListener('click', async () => {
+              // Fetch question and display it
+              document.getElementById('fetchQuestion').addEventListener('click', async () => {
                 try {
-                  const response = await fetch('/api/question/random');
+                  const response = await fetch('/api/question/random'); // Fetch from backend
                   const data = await response.json();
-                  document.getElementById('response-container').innerText = data.success
-                    ? `Random Question: ${data.question.text}`
-                    : 'Error fetching random question.';
+                  if (data.success) {
+                    // Display the question
+                    document.getElementById('questionContainer').innerText = data.question.text;
+                  } else {
+                    document.getElementById('questionContainer').innerText = 'Error fetching question.';
+                  }
                 } catch (error) {
                   console.error('Error:', error);
-                }
-              });
-        
-              document.getElementById('nextButton').addEventListener('click', async () => {
-                try {
-                  const response = await fetch('/api/question/next');
-                  const data = await response.json();
-                  document.getElementById('response-container').innerText = data.success
-                    ? `Next Question: ${data.question.text}`
-                    : 'Error fetching next question.';
-                } catch (error) {
-                  console.error('Error:', error);
+                  document.getElementById('questionContainer').innerText = 'Unable to fetch question.';
                 }
               });
             </script>
@@ -137,38 +127,6 @@
         </section>
       </td>
     </tr>
-
-    <section id="question-fetch">
-      <button id="fetchQuestion">Fetch Question</button>
-      <div id="questionContainer"></div>
-    </section>
-    
-    <script>
-      // Fetch question and display it
-      document.getElementById('fetchQuestion').addEventListener('click', async () => {
-        try {
-          const response = await fetch('/api/question/random'); // Fetch from backend
-          const data = await response.json();
-          if (data.success) {
-            // Display the question
-            document.getElementById('questionContainer').innerText = data.question.text;
-          } else {
-            document.getElementById('questionContainer').innerText = 'Error fetching question.';
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          document.getElementById('questionContainer').innerText = 'Unable to fetch question.';
-        }
-      });
-    </script>
-
-
-
-
-
-
-
-
 
     <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
         <tr>
