@@ -1,95 +1,58 @@
-const express = require('express');
 const mongoose = require('mongoose');
+const express = require('express');
 const app = express();
 const PORT = 3000;
 
-// MongoDB connection
+// MongoDB connection string
 const uri = 'mongodb+srv://thatsuon:Sd4RdbKjT$Pkx_e@chatgptee.5k5az.mongodb.net/?retryWrites=true&w=majority&appName=ChatGPTEE';
+
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('MongoDB connection error:', err));
 
-
-
-
-// Question Schema
+// Define the Question Schema
 const questionSchema = new mongoose.Schema({
-  question: { type: String, required: true }, // Text of the question
-  expectedAnswer: { type: String }, // Expected answer
-  chatGPTResponse: { type: String } // ChatGPT's response (can be null)
+  question: { type: String, required: true },
+  expectedAnswer: { type: String },
+  chatGPTResponse: { type: String }
 });
 
-// Create the model
-const Question = mongoose.model('Question', questionSchema);
+// Dynamically create models for each collection
+const collections = {
+  prehistory: mongoose.model('prehistory', questionSchema, 'prehistory'),
+  computer_security: mongoose.model('computer_security', questionSchema, 'computer_security'),
+  social_science: mongoose.model('social_science', questionSchema, 'social_science')
+};
 
-
-  // Serve static files from the 'public' directory
-app.use(express.static('public'));
-
-// API endpoints
-/*app.get('/api/question/random', async (req, res) => {
+// Seed data into collections
+const seedData = async () => {
   try {
-      const collectionName = req.query.collection; // Get the collection name from query parameter
+    // Insert sample data into the 'prehistory' collection
+    await collections.prehistory.create({
+      question: "What is the significance of fire in human evolution?",
+      expectedAnswer: "Fire allowed early humans to cook food and stay warm.",
+      chatGPTResponse: null
+    });
 
-      if (!collectionName || !['computer_security', 'prehistory', 'social_science'].includes(collectionName)) {
-          return res.json({ success: false, error: 'Invalid or missing collection name.' });
-      }
+    // Insert sample data into the 'computer_security' collection
+    await collections.computer_security.create({
+      question: "What is Diffie-Hellman?",
+      expectedAnswer: "It is a key exchange algorithm.",
+      chatGPTResponse: null
+    });
 
-      const Question = mongoose.model(collectionName, questionSchema, collectionName); // Dynamically select the collection
-      const count = await Question.countDocuments();
-      if (count === 0) return res.json({ success: false, error: 'No questions in the database.' });
+    // Insert sample data into the 'social_science' collection
+    await collections.social_science.create({
+      question: "What is a democracy?",
+      expectedAnswer: "A form of government where the people have the power.",
+      chatGPTResponse: null
+    });
 
-      const random = Math.floor(Math.random() * count);
-      const question = await Question.findOne().skip(random);
-
-      res.json({ success: true, question });
+    console.log('Sample questions inserted into collections.');
   } catch (error) {
-      console.error('Error fetching question:', error);
-      res.status(500).json({ success: false, error: 'Internal Server Error' });
+    console.error('Error inserting data:', error);
   }
-});
-*/
+};
 
-app.get('/api/question/random', async (req, res) => {
-  try {
-      const collectionName = req.query.collection; // Get the collection name from the query parameter
-
-      // Validate the collection name
-      if (!collectionName || !['computer_security', 'prehistory', 'social_science'].includes(collectionName)) {
-          return res.json({ success: false, error: 'Invalid or missing collection name.' });
-      }
-
-      // Dynamically select the correct collection based on the query parameter
-      const Question = mongoose.model(collectionName, questionSchema, collectionName);
-
-      // Check how many documents are in the specified collection
-      const count = await Question.countDocuments();  // Correct way to get count using Mongoose
-      console.log(`Documents in ${collectionName}: ${count}`); // Log document count
-
-      // If no documents exist in the collection, return an error
-      if (count === 0) {
-          return res.json({ success: false, error: `No questions in the ${collectionName} collection.` });
-      }
-
-      // Fetch a random question
-      const random = Math.floor(Math.random() * count);
-      const question = await Question.findOne().skip(random);
-
-      // Log the fetched question
-      console.log(`Fetched question from ${collectionName}:`, question);
-
-      res.json({ success: true, question });
-  } catch (error) {
-      console.error('Error fetching question:', error);
-      res.status(500).json({ success: false, error: 'Internal Server Error' });
-  }
-});
-
-
-
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
-
-db.prehistory.find();
+// Call seedData() to insert the documents
+seedData();
