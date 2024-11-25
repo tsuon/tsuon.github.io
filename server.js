@@ -9,7 +9,6 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-const mongoose = require('mongoose');
 
 
 
@@ -24,8 +23,7 @@ const questionSchema = new mongoose.Schema({
 const Question = mongoose.model('Question', questionSchema);
 
 
-
-// Serve static files from the 'public' directory
+  // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
 // API endpoints
