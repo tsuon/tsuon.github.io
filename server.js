@@ -24,12 +24,12 @@ const questionSchema = new mongoose.Schema({
   chatGPTResponse: { type: String },
 });
 
-const Question = mongoose.model('Question', questionSchema);
+const question = mongoose.model('question', questionSchema);
 
 // Fetch random question API
 app.get('/api/question/random', async (req, res) => {
   try {
-    const randomQuestion = await Question.aggregate([{ $sample: { size: 1 } }]);
+    const randomQuestion = await question.aggregate([{ $sample: { size: 1 } }]);
     if (randomQuestion.length > 0) {
       res.json({ success: true, question: randomQuestion[0] });
     } else {
