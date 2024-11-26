@@ -42,7 +42,7 @@ app.get('/api/question/random', async (req, res) => {
 });
 
 // ChatGPT API Key
-const apiKey = 'sk-OqemR8KRPQPzuw2V28Mo-MUivgwbmm_j9Qt4oF787ST3BlbkFJeS8H9aLvWGoKCtQDXgDAoZe8Kk1Aafl5Zz9TgQdtAA';
+const apiKey = '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';
 
 // Validate ChatGPT response API
 app.post('/api/validate', async (req, res) => {
@@ -74,23 +74,6 @@ app.post('/api/validate', async (req, res) => {
     res.status(500).json({ success: false, error: 'Validation failed.' });
   }
 });
-
-// Insert test question
-const insertTestQuestion = async () => {
-  try {
-    const testQuestion = new Question({
-      question: "What is the capital of France?",
-      expectedAnswer: "Paris",
-      chatGPTResponse: null,
-    });
-
-    await testQuestion.save();
-    console.log('Test question inserted successfully!');
-    mongoose.connection.close(); // Close the connection after insertion
-  } catch (error) {
-    console.error('Error inserting test question:', error);
-  }
-};
 
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
