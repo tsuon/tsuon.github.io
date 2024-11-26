@@ -1,10 +1,9 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const fetch = require('node-fetch'); // Import node-fetch for API requests.
-
-const chatGPTData = await chatGPTResponse.json();
-const answer = chatGPTData.choices?.[0]?.text?.trim() || 'No response from ChatGPT.';
+import dotenv from 'dotenv';
+dotenv.config();
+import express from 'express';
+import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import fetch from 'node-fetch'; // Import node-fetch for API requests
 
 const app = express();
 const PORT = 3000;
@@ -44,8 +43,8 @@ app.get('/api/question/random', async (req, res) => {
   }
 });
 
-// ChatGPT API Key
-const apiKey = 'sk-OqemR8KRPQPzuw2V28Mo-MUivgwbmm_j9Qt4oF787ST3BlbkFJeS8H9aLvWGoKCtQDXgDAoZe8Kk1Aafl5Zz9TgQdtAA';
+// ChatGPT API Key (replace with environment variable for security)
+const apiKey = process.env.OPENAI_API_KEY || 'sk-YOUR_API_KEY_HERE';
 
 // Validate ChatGPT response API
 app.post('/api/validate', async (req, res) => {
@@ -57,7 +56,7 @@ app.post('/api/validate', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: 'text-davinci-003',
@@ -65,9 +64,9 @@ app.post('/api/validate', async (req, res) => {
         max_tokens: 150,
       }),
     });
-    
+
     const chatGPTData = await chatGPTResponse.json();
-    const answer = chatGPTData.choices[0]?.text.trim();
+    const answer = chatGPTData.choices?.[0]?.text.trim() || 'No response';
 
     // Validation
     const isValid = answer.toLowerCase() === expectedAnswer.toLowerCase();
@@ -78,43 +77,5 @@ app.post('/api/validate', async (req, res) => {
   }
 });
 
+// Start the server
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
-app.get('/api/question/random', async (req, res) => {
-  try {
-    const randomQuestion = await Question.aggregate([{ $sample: { size: 1 } }]);
-    if (randomQuestion.length > 0) {
-      console.log("Fetched question:", randomQuestion[0]);
-      res.json({ success: true, question: randomQuestion[0] });
-    } else {
-      console.log("No questions found in the database.");
-      res.json({ success: false, error: 'No questions found.' });
-    }
-  } catch (err) {
-    console.error("Error fetching question:", err);
-    res.status(500).json({ success: false, error: 'Server error.' });
-  }
-});
-app.get('/api/statistics', async (req, res) => {
-  try {
-      const stats = await Question.aggregate([
-          {
-              $group: {
-                  _id: '$domain', 
-                  total: { $sum: 1 },
-                  correct: { $sum: { $cond: ['$isValid', 1, 0] } }
-              }
-          },
-          {
-              $project: {
-                  domain: '$_id',
-                  accuracy: { $multiply: [{ $divide: ['$correct', '$total'] }, 100] },
-                  _id: 0
-              }
-          }
-      ]);
-      res.json({ success: true, statistics: stats });
-  } catch (err) {
-      console.error(err);
-      res.status(500).json({ success: false, error: 'Unable to calculate statistics.' });
-  }
-});
