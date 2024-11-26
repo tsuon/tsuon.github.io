@@ -1,59 +1,78 @@
-const mongoose = require('mongoose');
 const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const fetch = require('node-fetch'); // Import node-fetch for API requests.
+
 const app = express();
 const PORT = 3000;
 
-// MongoDB connection string
+// Middleware
+app.use(bodyParser.json());
+app.use(express.static('public'));
+
+// MongoDB connection
 const uri = 'mongodb+srv://thatsuon:Sd4RdbKjT$Pkx_e@chatgptee.5k5az.mongodb.net/?retryWrites=true&w=majority&appName=ChatGPTEE';
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('MongoDB connection error:', err));
 
-// Define the Question Schema
+// Schema and Models
 const questionSchema = new mongoose.Schema({
   question: { type: String, required: true },
   expectedAnswer: { type: String },
-  chatGPTResponse: { type: String }
+  chatGPTResponse: { type: String },
 });
 
-// Dynamically create models for each collection
-const collections = {
-  prehistory: mongoose.model('prehistory', questionSchema, 'prehistory'),
-  computer_security: mongoose.model('computer_security', questionSchema, 'computer_security'),
-  social_science: mongoose.model('social_science', questionSchema, 'social_science')
-};
+const Question = mongoose.model('Question', questionSchema);
 
-// Seed data into collections
-const seedData = async () => {
+// Fetch random question API
+app.get('/api/question/random', async (req, res) => {
   try {
-    // Insert sample data into the 'prehistory' collection
-    await collections.prehistory.create({
-      question: "What is the significance of fire in human evolution?",
-      expectedAnswer: "Fire allowed early humans to cook food and stay warm.",
-      chatGPTResponse: null
-    });
-
-    // Insert sample data into the 'computer_security' collection
-    await collections.computer_security.create({
-      question: "What is Diffie-Hellman?",
-      expectedAnswer: "It is a key exchange algorithm.",
-      chatGPTResponse: null
-    });
-
-    // Insert sample data into the 'social_science' collection
-    await collections.social_science.create({
-      question: "What is a democracy?",
-      expectedAnswer: "A form of government where the people have the power.",
-      chatGPTResponse: null
-    });
-
-    console.log('Sample questions inserted into collections.');
-  } catch (error) {
-    console.error('Error inserting data:', error);
+    const randomQuestion = await Question.aggregate([{ $sample: { size: 1 } }]);
+    if (randomQuestion.length > 0) {
+      res.json({ success: true, question: randomQuestion[0] });
+    } else {
+      res.json({ success: false, error: 'No questions found.' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: 'Server error.' });
   }
-};
+});
 
-// Call seedData() to insert the documents
-seedData();
+// ChatGPT API Key
+const apiKey = 'sk-OqemR8KRPQPzuw2V28Mo-MUivgwbmm_j9Qt4oF787ST3BlbkFJeS8H9aLvWGoKCtQDXgDAoZe8Kk1Aafl5Zz9TgQdtAA';
 
+// Validate ChatGPT response API
+app.post('/api/validate', async (req, res) => {
+  const { question, expectedAnswer } = req.body;
+
+  try {
+    // Call OpenAI's API
+    const chatGPTResponse = await fetch('https://api.openai.com/v1/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'text-davinci-003',
+        prompt: question,
+        max_tokens: 150,
+      }),
+    });
+    
+    const chatGPTData = await chatGPTResponse.json();
+    const answer = chatGPTData.choices[0]?.text.trim();
+
+    // Validation
+    const isValid = answer.toLowerCase() === expectedAnswer.toLowerCase();
+    res.json({ success: true, chatGPTResponse: answer, isValid });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: 'Validation failed.' });
+  }
+});
+
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
