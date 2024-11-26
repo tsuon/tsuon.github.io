@@ -94,3 +94,27 @@ app.get('/api/question/random', async (req, res) => {
     res.status(500).json({ success: false, error: 'Server error.' });
   }
 });
+app.get('/api/statistics', async (req, res) => {
+  try {
+      const stats = await Question.aggregate([
+          {
+              $group: {
+                  _id: '$domain', 
+                  total: { $sum: 1 },
+                  correct: { $sum: { $cond: ['$isValid', 1, 0] } }
+              }
+          },
+          {
+              $project: {
+                  domain: '$_id',
+                  accuracy: { $multiply: [{ $divide: ['$correct', '$total'] }, 100] },
+                  _id: 0
+              }
+          }
+      ]);
+      res.json({ success: true, statistics: stats });
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: 'Unable to calculate statistics.' });
+  }
+});
