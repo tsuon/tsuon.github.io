@@ -92,7 +92,5 @@ const insertTestQuestion = async () => {
   }
 };
 
-// Run the function
-insertTestQuestion();
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
