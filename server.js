@@ -75,4 +75,24 @@ app.post('/api/validate', async (req, res) => {
   }
 });
 
+// Insert test question
+const insertTestQuestion = async () => {
+  try {
+    const testQuestion = new Question({
+      question: "What is the capital of France?",
+      expectedAnswer: "Paris",
+      chatGPTResponse: null,
+    });
+
+    await testQuestion.save();
+    console.log('Test question inserted successfully!');
+    mongoose.connection.close(); // Close the connection after insertion
+  } catch (error) {
+    console.error('Error inserting test question:', error);
+  }
+};
+
+// Run the function
+insertTestQuestion();
+
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
