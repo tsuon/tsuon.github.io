@@ -76,3 +76,18 @@ app.post('/api/validate', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.get('/api/question/random', async (req, res) => {
+  try {
+    const randomQuestion = await Question.aggregate([{ $sample: { size: 1 } }]);
+    if (randomQuestion.length > 0) {
+      console.log("Fetched question:", randomQuestion[0]);
+      res.json({ success: true, question: randomQuestion[0] });
+    } else {
+      console.log("No questions found in the database.");
+      res.json({ success: false, error: 'No questions found.' });
+    }
+  } catch (err) {
+    console.error("Error fetching question:", err);
+    res.status(500).json({ success: false, error: 'Server error.' });
+  }
+});
