@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch'); // Import node-fetch for API requests.
 
+const chatGPTData = await chatGPTResponse.json();
+const answer = chatGPTData.choices?.[0]?.text?.trim() || 'No response from ChatGPT.';
+
 const app = express();
 const PORT = 3000;
 
